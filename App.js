@@ -1,52 +1,57 @@
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { SwipeListView } from "react-native-swipe-list-view";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-const DATA = [{ timestamp: Date.now(), text: "Sample Text" }];
-export default function App() {
-  const [data, setData] = React.useState(DATA);
-  const [text, setText] = React.useState("");
+const DATA = [
+  { timestamp: Date.now(), text: "Sample Text" },
+  { timestamp: Date.now() + 1, text: "Sample Text2" },
+];
 
-  const addItem = () => {
+export default function App() {
+  const [text, setText] = React.useState("");
+  const [data, setData] = React.useState(DATA);
+
+  const handleDelete = (timestamp) => {
+    const res = data.filter((item) => item.timestamp !== timestamp);
+    console.log(res);
+    setData([...res]);
+  };
+
+  const handleAdd = () => {
     const res = { timestamp: Date.now(), text: text };
     setData([...data, res]);
   };
 
-  const deleteItem = (time) => {
-    const res = data.filter((item) => item.timestamp !== time);
-    setData([...res]);
-  };
   const renderItem = ({ item, index }) => {
     return (
       <View
         style={{
           width: wp(90),
-          marginHorizontal: wp(5),
-          height: hp(7),
+          height: wp(90) / 4,
           backgroundColor: "#FFF",
-          borderRadius: 20,
-          justifyContent: "center",
-          paddingHorizontal: wp(5),
+          marginHorizontal: wp(5),
+          borderRadius: 10,
           marginBottom: hp(2),
+          flexDirection: "row",
+          alignItems: "center",
         }}
       >
-        <Text style={{ fontSize: hp(2) }}>
-          [{index+1}] {item.text}
-        </Text>
-        <Text style={{ fontSize: hp(1.5) }}>{new Date(item.timestamp).toLocaleString()}</Text>
+        <View style={{ width: hp(4), height: hp(4), backgroundColor: "#8D71FE", borderRadius: 4, marginHorizontal: wp(5), opacity: 0.4 }} />
+        <Text style={{ width: wp(60) }}>{item.text}</Text>
+        <View style={{ width: hp(2), height: hp(2), backgroundColor: "#8D71FE", borderRadius: 100, marginHorizontal: wp(3) }} />
       </View>
     );
   };
   const renderHiddenItem = ({ item, index }) => {
     return (
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: wp(5), paddingVertical: hp(1) }}>
-        <Pressable>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: wp(5), paddingVertical: hp(2.5) }}>
+        <Pressable onPress={null}>
           <Text style={{ fontSize: hp(3) }}>✍🏻</Text>
         </Pressable>
-        <Pressable onPress={() => deleteItem(item.timestamp)}>
+        <Pressable onPress={()=>handleDelete(item.timestamp)}>
           <Text style={{ fontSize: hp(3) }}>🗑</Text>
         </Pressable>
       </View>
@@ -55,32 +60,33 @@ export default function App() {
   return (
     <View style={styles.container}>
       <KeyboardAwareScrollView bounces={false}>
-        <View style={{ width: wp(100), height: hp(15), paddingHorizontal: wp(5), justifyContent: "center" }}>
-          <Text style={{ fontSize: hp(4), fontWeight: "bold" }}>✅ To do list</Text>
+        <View style={{ width: wp(100), height: hp(20), justifyContent: "center", paddingLeft: wp(10) }}>
+          <Text style={{ fontSize: hp(3), fontWeight: "bold" }}>✔️To do list</Text>
         </View>
-        <View style={{ width: wp(100), height: hp(75) }}>
-          <SwipeListView data={data} renderItem={renderItem} renderHiddenItem={renderHiddenItem} leftOpenValue={wp(10)} rightOpenValue={-wp(10)} />
+        <View style={{ width: wp(100), height: hp(70) }}>
+          <SwipeListView data={data} renderItem={renderItem} leftOpenValue={wp(10)} rightOpenValue={-wp(10)} renderHiddenItem={renderHiddenItem} />
         </View>
-        <View style={{ flexDirection: "row", width: wp(100), height: hp(10), paddingHorizontal: wp(5), justifyContent: "center" }}>
+        <View style={{ width: wp(100), height: hp(10), flexDirection: "row" }}>
           <TextInput
+            placeholder="please write the text."
             value={text}
-            placeholder="please input the text"
-            onChangeText={(text) => setText(text)}
-            style={{ width: wp(70), height: hp(5), backgroundColor: "#ced4da", borderRadius: 10, paddingHorizontal: wp(3) }}
+            onChangeText={(item) => setText(item)}
+            placeholderTextColor="#aaa"
+            style={{ width: wp(60), marginLeft: wp(10), backgroundColor: "#FFF", height: hp(5), paddingLeft: wp(3), borderRadius: 10 }}
           />
           <Pressable
             style={{
-              marginLeft: wp(5),
-              borderRadius: 100,
               width: hp(5),
               height: hp(5),
-              backgroundColor: "#ced4da",
+              marginLeft: wp(10),
+              backgroundColor: "#fff",
               justifyContent: "center",
               alignItems: "center",
+              borderRadius: 100,
             }}
-            onPress={addItem}
+            onPress={handleAdd}
           >
-            <Text style={{ fontSize: hp(3) }}>➕</Text>
+            <Text>➕</Text>
           </Pressable>
         </View>
       </KeyboardAwareScrollView>
